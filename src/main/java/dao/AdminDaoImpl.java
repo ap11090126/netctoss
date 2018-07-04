@@ -15,14 +15,14 @@ public class AdminDaoImpl implements Serializable, AdminDao {
 		try {
 			conn=DBUtils.getConnection();
 			String sql="select * from admin_info "
-					+ "where admin_code=?";
+					+ "where admincode=?";
 			PreparedStatement ps=conn.prepareStatement(sql);
 			ps.setString(1, code);
 			ResultSet rs=ps.executeQuery();
 			if(rs.next()){
 				Admin a=new Admin();
 				a.setAdminId(rs.getInt("id"));
-				a.setAdminCode(rs.getString("admin_code"));
+				a.setAdminCode(rs.getString("admincode"));
 				a.setPassword(rs.getString("password"));
 				a.setName(rs.getString("name"));
 				a.setTelephone(rs.getString("telephone"));

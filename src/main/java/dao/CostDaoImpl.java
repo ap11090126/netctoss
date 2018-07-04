@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -57,18 +58,50 @@ public class CostDaoImpl implements Serializable, CostDao {
 		Connection conn=null;
 		try {
 			conn=DBUtils.getConnection();
-			String sql="insert into cost values("
-					+ "last_insert_id(),"
-					+ "?,?,?,?,1,?,sysdate(),null,?)";
+			String sql="insert into cost(name,base_duration,"
+					+ "base_cost,unit_cost,status,descr,creatime,startime,costtype) values("
+					+ "?,?,?,?,?,?,?,?,?)";
 			PreparedStatement ps=conn.prepareStatement(sql);
+			Timestamp creatime=new Timestamp(System.currentTimeMillis());
+			Timestamp startime=new Timestamp(System.currentTimeMillis());
+			ps.setString(1,c.getName());
+			ps.setObject(2,c.getBaseDuration());
+			ps.setObject(3,c.getBaseCost());
+			ps.setObject(4,c.getUnitCost());
+			ps.setString(6,c.getDescr());
+			ps.setString(5,"1");
+			ps.setTimestamp(7,creatime);
+			ps.setTimestamp(8,startime);
+			ps.setString(9,c.getCostType());
+			ps.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new RuntimeException("增加员工失败",e);
+		}finally{
+			DBUtils.close(conn);
+		}
+		
+	}
+	public void update(Cost c) {
+		Connection conn=null;
+		try {
+			conn=DBUtils.getConnection();
+			String sql="update cost set name=?,base_duration=?,"
+			+ "base_cost=?,unit_cost=?,descr=?,costtype=? where id=? ";
+			PreparedStatement ps=conn.prepareStatement(sql);
+		
+			//ps.setObject(1,c.getCostId());
 			ps.setString(1,c.getName());
 			ps.setObject(2,c.getBaseDuration());
 			ps.setObject(3,c.getBaseCost());
 			ps.setObject(4,c.getUnitCost());
 			ps.setString(5,c.getDescr());
 			ps.setString(6,c.getCostType());
-			ps.executeUpdate();
-		} catch (Exception e) {
+			ps.setObject(7,c.getCostId());
+			int a=ps.executeUpdate();
+			System.out.println(a);
+			System.out.println(c.getCostId());
+		} catch (Exception e) { 
 			e.printStackTrace();
 			throw new RuntimeException("增加员工失败",e);
 		}finally{
@@ -88,6 +121,7 @@ public class CostDaoImpl implements Serializable, CostDao {
 			if(rs.next()){
 				return creatCost(rs);
 			}
+		
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new RuntimeException("查询资费失败",e);
@@ -104,17 +138,19 @@ public class CostDaoImpl implements Serializable, CostDao {
 		c.getName()+"、"+c.getBaseCost());
 			
 		}*/
-		/*Cost c=new Cost();
-		c.setName("包月");
-		//c.setBaseDuration(600);
-		c.setBaseCost(60.0);
-		//c.setUnitCost(0.6);
-		c.setDescr("包月很爽");
-		c.setCostType("1");
-		dao.save(c);*/
-		Cost c=dao.findById(1);
+		Cost c=new Cost();
+		
+		c.setCostId(20);
+		c.setName("50");
+	   c.setBaseDuration(40);
+	   c.setBaseCost(new Double(40));
+	   c.setUnitCost(new Double(40));
+		c.setDescr("");
+		c.setCostType("");
+		dao.update(c);
 		System.out.println(c.getName());
 		System.out.println(c.getDescr());
+		
 	}
 
 

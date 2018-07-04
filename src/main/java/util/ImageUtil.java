@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.Random;
 
 import javax.imageio.ImageIO;
+import javax.servlet.http.HttpSession;
 
 import com.sun.image.codec.jpeg.JPEGCodec;
 import com.sun.image.codec.jpeg.JPEGImageEncoder;
@@ -75,9 +76,18 @@ public final class ImageUtil {
 	public static void main(String[] args) throws IOException{
 		Object[] objs=createImage();
 		BufferedImage image=(BufferedImage) objs[1];
-		OutputStream os=new FileOutputStream("d:/1.png");
+		OutputStream os=new FileOutputStream("d:/png");
 		ImageIO.write(image, "png", os);
 		os.close();
+		System.out.println(image);
+		/*Object[] objs=ImageUtil.createImage();
+		HttpSession session=req.getSession();
+		session.setAttribute("imgcode", objs[0]);
+		res.setContentType("image/png");
+		OutputStream os=res.getOutputStream();
+		BufferedImage image=(BufferedImage) objs[1];
+		ImageIO.write(image, "png", os);
+		os.close();*/
 	}
 
 }

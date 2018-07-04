@@ -8,5 +8,6 @@ public interface CostDao {
 	List<Cost> findAll();
 	void save(Cost c);
 	Cost findById(int i);
+	void update(Cost c);
 
 }

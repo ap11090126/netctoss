@@ -38,17 +38,69 @@ public class MainServlet extends HttpServlet {
 			addCost(req,res);
 		}else if("/toUpdateCost.do".equals(p)){
 			toUpdateCost(req,res);
+		}else if("/updateCost.do".equals(p)){
+			updateCost(req,res);
 		}else if("/toLogin.do".equals(p)){
-			toLogin(req,res);
+			toLogin(req,res);			
 		}else if("/toIndex.do".equals(p)){
 			toIndex(req,res);
 		}else if("/login.do".equals(p)){
 			login(req,res);
 		}else if("/createImg.do".equals(p)){
 			createImg(req,res);
+		}else if("/toDelete.do".equals(p)){
+			toDelete(req,res);
+		}else if("/list.do".equals(p)){
+			list(req,res);
 		}else{
 			throw new RuntimeException("查无此页");
 		}
+	}
+	//分页
+	private void list(HttpServletRequest req,
+			HttpServletResponse res) throws ServletException, 
+	IOException{
+		CostDao dao=new CostDaoImpl();
+		List<Cost> list=dao.findAll();
+		int totalPage=(list.size()/10+1);
+		String pages=req.getParameter("page");
+		int page=Integer.parseInt(pages);
+		if(10*page<list.size()){
+			list=list.subList(10*(page-1),10*page);
+		}else{
+			list=list.subList(10*(page-1),list.size());
+		}
+		
+		System.out.println(list.size());
+		System.out.println(pages);
+		System.out.println(page);
+		req.setAttribute("totalPage", totalPage);
+		req.setAttribute("page", page);
+		req.setAttribute("costs", list);
+		req.getRequestDispatcher("/WEB-INF/cost/find.jsp")
+		.forward(req, res);
+	}
+	//打开资费页面
+	protected void findCost(HttpServletRequest req,
+			HttpServletResponse res) throws ServletException, 
+	IOException{
+		CostDao dao=new CostDaoImpl();
+		List<Cost> list=dao.findAll();
+		int totalPage=(list.size()/10+1);
+		
+		list=list.subList(0,10);
+		//System.out.println(list.size());
+		req.setAttribute("totalPage", totalPage);
+		req.setAttribute("costs", list);
+		req.getRequestDispatcher("/WEB-INF/cost/find.jsp")
+		.forward(req, res);
+	}
+	private void toDelete(HttpServletRequest req, 
+			HttpServletResponse res)throws ServletException, 
+	IOException {
+		req.getRequestDispatcher("/WEB-INF/cost/add.jsp")
+		.forward(req, res);
+		
 	}
 	//生验证码
 	private void createImg(HttpServletRequest req,
@@ -72,10 +124,13 @@ public class MainServlet extends HttpServlet {
 		String password=req.getParameter("password");
 		String code=req.getParameter("code");
 		HttpSession session =req.getSession();
-		String imgcode=(String) session.getAttribute(" imgcode");
+		String imgcode=(String) session.getAttribute("imgcode");
 		if(code==null||!code.equalsIgnoreCase(imgcode)){
-			req.setAttribute("error","验证码错误");
-			req.getRequestDispatcher("WEB-INF/main/login.jsp")
+			System.out.println(imgcode);
+			System.out.println(adminCode);
+			System.out.println(password);
+			req.setAttribute("error1","验证码错误");
+			req.getRequestDispatcher("WEB-INF/login.jsp")
 			.forward(req, res);
 			return;
 		}
@@ -83,11 +138,11 @@ public class MainServlet extends HttpServlet {
 		Admin a=dao.findByCode(adminCode);
 		if(a==null){
 			req.setAttribute("error","账号密码错误");
-			req.getRequestDispatcher("WEB-INF/main/login.jsp")
+			req.getRequestDispatcher("WEB-INF/login.jsp")
 			.forward(req, res);
 		}else if(!a.getPassword().equals(password)){
 			req.setAttribute("error","密码错误");
-			req.getRequestDispatcher("WEB-INF/main/login.jsp")
+			req.getRequestDispatcher("WEB-INF/login.jsp")
 			.forward(req, res);
 		}else{
 			Cookie c=new Cookie("adminCode", adminCode);
@@ -102,14 +157,14 @@ public class MainServlet extends HttpServlet {
 	private void toIndex(HttpServletRequest req,
 			HttpServletResponse res) throws ServletException, 
 	IOException{
-		req.getRequestDispatcher("/WEB-INF/main/index.jsp")
+		req.getRequestDispatcher("/WEB-INF/index.jsp")
 		.forward(req, res);
 	}
 	//打开登录页面
 	private void toLogin(HttpServletRequest req,
 			HttpServletResponse res) throws ServletException, 
 	IOException{
-		req.getRequestDispatcher("/WEB-INF/main/login.jsp")
+		req.getRequestDispatcher("/WEB-INF/login.jsp")
 		.forward(req, res);
 	}
 
@@ -120,16 +175,7 @@ public class MainServlet extends HttpServlet {
 		req.getRequestDispatcher("/WEB-INF/cost/add.jsp")
 		.forward(req, res);
 	}
-	//打开资费页面
-	protected void findCost(HttpServletRequest req,
-			HttpServletResponse res) throws ServletException, 
-	IOException{
-		CostDao dao=new CostDaoImpl();
-		List<Cost> list=dao.findAll();
-		req.setAttribute("costs", list);
-		req.getRequestDispatcher("/WEB-INF/cost/find.jsp")
-		.forward(req, res);
-	}
+
 	//增加资费数据
 	protected void addCost(HttpServletRequest req,
 			HttpServletResponse res) throws ServletException, 
@@ -176,6 +222,48 @@ public class MainServlet extends HttpServlet {
 		req.setAttribute("cost", cost);
 		req.getRequestDispatcher("WEB-INF/cost/update.jsp")
 		.forward(req, res);
+		
+	}
+	protected void updateCost(HttpServletRequest req,
+			HttpServletResponse res) throws ServletException, 
+	IOException{
+		//接收参数
+		req.setCharacterEncoding("utf-8");
+		String id=req.getParameter("cost_id");
+		String name=req.getParameter("name");
+		String costType=req.getParameter("costType");
+		String baseDuration=req.getParameter("baseDuration");
+		String baseCost=req.getParameter("baseCost");
+		String unitCost=req.getParameter("unitCost");
+		String descr=req.getParameter("descr");
+		System.out.println(id);
+		//保存以上数据
+		Cost c=new Cost();
+		if(id!=null&&
+				!id.equals("")){
+			c.setCostId(new Integer(id));
+		}
+		
+		c.setName(name);
+		c.setCostType(costType);
+		if(baseDuration!=null&&
+				!baseDuration.equals("")){
+			c.setBaseDuration(new Integer(baseDuration));
+		}
+		if(baseCost!=null&&
+				!baseCost.equals("")){
+			c.setBaseCost(new Double(baseCost));
+		}
+		
+		if(unitCost!=null&&
+				!unitCost.equals("")){
+			c.setBaseCost(new Double(unitCost));
+		}
+		c.setDescr(descr);
+		CostDao dao=new CostDaoImpl();
+		dao.update(c);
+		//重定向到查询功能
+		res.sendRedirect("findCost.do");
 		
 	}
 

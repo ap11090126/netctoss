@@ -1,5 +1,6 @@
 <%@page pageEncoding="utf-8"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="s" uri="/struts-tags" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
@@ -7,6 +8,8 @@
         <title>达内－NetCTOSS</title>
         <link type="text/css" rel="stylesheet" media="all" href="styles/global.css" />
         <link type="text/css" rel="stylesheet" media="all" href="styles/global_color.css" />
+        <script type="text/javascript" 
+			src="scripts/jquery.min.js"></script>
         <script language="javascript" type="text/javascript">
             //排序按钮的点击事件
             function sort(btnObj) {
@@ -41,7 +44,7 @@
         <!--导航区域结束-->
         <!--主要区域开始-->
         <div id="main">
-            <form action="" method="">
+            <form action="" method="post">
                 <!--排序-->
                 <div class="search_add">
                     <div>
@@ -101,15 +104,27 @@
                     </p>
                 </div>
                 <!--分页-->
-                <div id="pages">
-        	        <a href="#">上一页</a>
-                    <a href="#" class="current_page">1</a>
-                    <a href="#">2</a>
-                    <a href="#">3</a>
-                    <a href="#">4</a>
-                    <a href="#">5</a>
-                    <a href="#">下一页</a>
+                <!--分页-->
+				<div id="pages">
+                	<c:if test="${page>1}">
+                		<a href="list.do?page=${page-1}">上一页</a>
+                	</c:if>
+        	        <c:forEach begin="1" end="${totalPage}" var="p">
+	        	        <c:choose>
+		        	        <c:when test="${p==page}">
+		                    	<a href="list.do?page=${p}" class="current_page">${p}</a>
+		                    </c:when>
+		                    <c:otherwise>
+		                    	<a href="list.do?page=${p}" id="page" name="page">${p}</a>
+		                    </c:otherwise>
+	                    </c:choose>
+                   </c:forEach>
+                   <c:if test="${page<totalPage}">
+                		<a href="list.do?page=${page+1}">下一页</a>
+                	</c:if>
                 </div>
+
+               
             </form>
         </div>
         <!--主要区域结束-->
